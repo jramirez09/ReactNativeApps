@@ -9,11 +9,13 @@ import * as Font from 'expo-font'
 //access state from our redux store
 import productsReducer from './store/reducers/products'
 import cartReducer  from './store/reducers/cart'
+import ordersReducer from './store/reducers/orders'
 import ShopNavigator from './navigation/ShopNavigator'
 
 const rootReducer = combineReducers({
   products: productsReducer,
-  cart: cartReducer
+  cart: cartReducer,
+  orders: ordersReducer
 })
 
 //create our Redux store

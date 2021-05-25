@@ -5,6 +5,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import Colors from '../../constants/Colors';
 import CartItem from '../../components/shop/CartItem';
 import * as cartActions from '../../store/actions/cart'
+import * as orderActions from '../../store/actions/orders'
 
 const CartScreen = props => {
   
@@ -38,6 +39,10 @@ const CartScreen = props => {
           color={Colors.accent}
           title="Order Now"
           disabled={cartItems.length === 0}
+          onPress = {()=> {
+            //forwarding cart items. Storing cart items which are in the array
+            dispatch(ordersActions.addOrder(cartItems,cartTotalAmount))
+          }}
         />
       </View>
       <FlatList
@@ -57,6 +62,10 @@ const CartScreen = props => {
     </View>
   );
 };
+
+CartScreen.navigationOptions = {
+  headerTitle: "Your Orders"
+}
 
 const styles = StyleSheet.create({
   screen: {
