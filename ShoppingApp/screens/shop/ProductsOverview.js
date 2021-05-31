@@ -2,8 +2,10 @@ import React from 'react'
 import { FlatList, Platform} from 'react-native'
 //tap into our Redux store and get our products from there
 import { useSelector, useDispatch } from 'react-redux'
+
 import {HeaderButtons, Item} from 'react-navigation-header-buttons'
 import HeaderButton from '../../components/UI/HeaderButton'
+
 import ProductItem from '../../components/shop/ProductItem'
 import * as cartActions from '../../store/actions/cart'
 
