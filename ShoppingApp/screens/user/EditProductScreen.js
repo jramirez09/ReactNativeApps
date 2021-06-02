@@ -1,8 +1,12 @@
-import React, {useState} from 'react'
-import {View, Text, ScrollView, TextInput, StyleSheet, Platform} from 'react-native'
+import React, {useState, useEffect, useCallback} from 'react'
+import {View, Text, ScrollView, TextInput, StyleSheet, Platform, Alert} from 'react-native'
+
 import {HeaderButtons, Item} from 'react-navigation-header-buttons'
+import {useSelector, useDispatch} from 'react-redux'
+
 import HeaderButton from '../../components/UI/HeaderButton'
-import {useSelector} from 'react-redux'
+import * as productsActions from '../../store/actions/products'
+
 
 const EditProductScreen = props => {
 
@@ -13,6 +17,8 @@ const EditProductScreen = props => {
         state.products.userProducts.find( prod=> prod.id === prodId)
     )
 
+    const dispatch = useDispatch()
+
     const [title, setTitle] = useState(editedProduct ? editedProduct.title : '')
     const [imageUrl, setImageUrl] = useState(
         editedProduct ? editedProduct.imageUrl : ''
@@ -21,6 +27,27 @@ const EditProductScreen = props => {
     const [description, setDescription] = useState(
         editedProduct ? editedProduct.description :  ''
         )
+
+    
+    
+    //useCallback prevents re-rendering in an infinite loop
+    const submitHandler = useCallback(() => {
+        if(editedProduct){
+            dispatch(
+                productsActions.updateProduct(prodId, title, description, imageUrl)
+            )
+        }else{
+            dispatch(
+                productsActions.createProduct(title, description, imageUrl, +price )
+                )
+        }
+        props.navigation.goBack()
+    }, [dispatch, prodId, title, description, imageUrl, price])
+
+    //useEffect executes a function after every render cycle
+    useEffect(()=> {
+        props.navigation.setParams({'submit': submitHandler})
+    }, [submitHandler])
 
     return (
 
@@ -66,6 +93,10 @@ const EditProductScreen = props => {
 }
 
 EditProductScreen.navigationOptions = navData => {
+
+    //executed after the button is pressed
+    const  submitFn = navData.navigation.getParam('submit')
+
     return {
         headerTitle: navData.navigation.getParam('productId')
          ? 'Edit Product'
@@ -74,9 +105,7 @@ EditProductScreen.navigationOptions = navData => {
          <Item 
              title='Save' 
              iconName={Platform.OS === 'android' ? 'md-checkmark' : 'ios-checkmark'} 
-             onPress={() => {
-                 
-             }} 
+             onPress={submitFn} 
              />
          </HeaderButtons>
     }
