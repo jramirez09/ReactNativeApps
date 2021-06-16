@@ -160,7 +160,7 @@ const EditProductScreen = props => {
                 errorText= 'Please enter a valid price'
                 keyboardType='decimal-pad'
                 returnKeyType='next'
-                onInputChange = {inputChangeHandler.bind}
+                onInputChange = {inputChangeHandler}
                 required
                 min={0.1}
                 />
@@ -174,7 +174,7 @@ const EditProductScreen = props => {
                 autoCorrect
                 multiline
                 numberOfLines ={3}
-                onInputChange = {inputChangeHandler.bind}
+                onInputChange = {inputChangeHandler}
                 initialValue= {editedProduct? editedProduct.description : ''}
                 initiallyValid = {!!editedProduct}
                 required
