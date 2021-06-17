@@ -1,10 +1,11 @@
 import React, {useState} from 'react';
-import {createStore, combineReducers} from 'redux';
+import {createStore, combineReducers, applyMiddleware} from 'redux';
 //provider is wrapped around to provide something
 import {Provider} from 'react-redux'
 //correct way to import appLoading
 import AppLoading from 'expo-app-loading'
 import * as Font from 'expo-font'
+import ReduxThunk from 'redux-thunk'
 
 //access state from our redux store
 import productsReducer from './store/reducers/products'
@@ -19,7 +20,7 @@ const rootReducer = combineReducers({
 })
 
 //create our Redux store
-const store = createStore(rootReducer);
+const store = createStore(rootReducer, applyMiddleware(ReduxThunk));
 
 const fetchFonts = () => {
   return Font.loadAsync({
