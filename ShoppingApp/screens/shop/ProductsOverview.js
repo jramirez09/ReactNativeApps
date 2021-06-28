@@ -1,5 +1,5 @@
-import React from 'react'
-import { FlatList, Button, Platform} from 'react-native'
+import React, {useState, useEffect} from 'react'
+import { View, Text, FlatList, Button, Platform, ActivityIndicator, StyleSheet} from 'react-native'
 //tap into our Redux store and get our products from there
 import { useSelector, useDispatch } from 'react-redux'
 
@@ -8,21 +8,48 @@ import HeaderButton from '../../components/UI/HeaderButton'
 
 import ProductItem from '../../components/shop/ProductItem'
 import * as cartActions from '../../store/actions/cart'
+import * as productsActions from '../../store/actions/products'
 import Colors from '../../constants/Colors'
 
 
 const ProductsOverviewScreen = props => {
+    const [isLoading, setIsLoading] = useState(false)
     //useSelector automatically receives the Redux state as an input, and returns whatever you want to get
     const products = useSelector(state => state.products.availableProducts)
 
     //connect button with actions
     const dispatch = useDispatch()
 
+    useEffect(()=>{
+        const loadProducts= async() =>  {
+            setIsLoading(true);
+            await dispatch(productsActions.fetchProducts());
+            setIsLoading(false); 
+        }
+        loadProducts()  
+    }, [dispatch])
+
     const selectItemHandler = (id, title) => {
         props.navigation.navigate( 'ProductDetail', { 
             productId: id ,
             productTitle: title
         })
+    }
+
+    if (isLoading) {
+        return (
+            <View style={styles.centered}>
+                <ActivityIndicator size="large"  color={Colors.primary} />
+            </View>
+        )
+    }
+
+    if (!isLoading && products.length === 0) {
+        return (
+            <View>
+                <Text> No products Found. Maybe stard adding some </Text>
+            </View>
+        )
     }
 
     return (
@@ -90,5 +117,9 @@ ProductsOverviewScreen.navigationOptions = navData => {
     }
     
 }
+
+const  styles = StyleSheet.create({
+    centered: {flex: 1, justifyContent: 'center', alignItems:'center'}
+})
 
 export default ProductsOverviewScreen

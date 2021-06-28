@@ -1,6 +1,36 @@
+import Product from "../../models/product";
+
 export const DELETE_PRODUCT = 'DELETE_PRODUCT';
 export const CREATE_PRODUCT = 'CREATE_PRODUCT'
 export const UPDATE_PRODUCT = 'UPDATE_PRODUCT'
+export const SET_PRODUCTS = 'SET_PRODUCTS'
+
+//action creator  witht http request
+export const fetchProducts = () => {
+    return async dispatch => {
+        
+        const response = await fetch(
+            'https://shoppingapp-2f759-default-rtdb.firebaseio.com/products.json'
+        )
+
+        const resData = await response.json()
+        //loop through object to map the object data. IE: The products in the object to products in the array
+        const loadedProducts = []
+            for (const key in resData) {
+                loadedProducts.push( 
+                    new Product(
+                        key, 
+                        'u1', 
+                        resData[key].title, 
+                        resData[key].imageUrl, 
+                        resData[key].description, 
+                        resData[key].price 
+                        )
+                    )
+            }
+        dispatch({type: SET_PRODUCTS, products:loadedProducts })
+    }
+}
 
 export const deleteProduct = productID => {
     return {
