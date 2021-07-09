@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useCallback, useReducer} from 'react'
-import {View, Text, ScrollView, TextInput, StyleSheet, Platform, Alert, KeyboardAvoidingView} from 'react-native'
+import {View, Text, ScrollView, TextInput, StyleSheet, Platform, Alert, KeyboardAvoidingView, ActivityIndicator} from 'react-native'
 
 import {HeaderButtons, Item} from 'react-navigation-header-buttons'
 import {useSelector, useDispatch} from 'react-redux'
@@ -7,6 +7,8 @@ import {useSelector, useDispatch} from 'react-redux'
 import HeaderButton from '../../components/UI/HeaderButton'
 import * as productsActions from '../../store/actions/products'
 import Input from '../../components/UI/Input'
+import Colors from '../../constants/Colors'
+
 
 //useReducer typically too manage connected states, or more complex states
 
@@ -39,6 +41,9 @@ const formReducer = (state, action) => {
 
 
 const EditProductScreen = props => {
+
+    const [isLoading, setIsLoading] = useState(false)
+    const [error, setError] = useState()
 
     const prodId = props.navigation.getParam('productId')
     //find the product with the prodId
@@ -75,7 +80,11 @@ const EditProductScreen = props => {
     //     editedProduct ? editedProduct.description :  ''
     //     )
 
-    
+    useEffect(()=>{
+        if(error){
+            Alert.alert('An error ocurred', error, [{ text: 'Okay'}])
+        }
+    }, [error])
     
     //useCallback prevents re-rendering in an infinite loop
     const submitHandler = useCallback(() => {
@@ -85,25 +94,36 @@ const EditProductScreen = props => {
             ])
             return;
         }
-        if(editedProduct){
-            dispatch(
-                productsActions.updateProduct(
-                    prodId, 
-                    formState.inputValues.title, 
-                    formState.inputValues.description, 
-                    formState.inputValues.imageUrl
+
+        setError(null)
+        setIsLoading(true)
+
+        try{
+            if(editedProduct){
+                await dispatch(
+                    productsActions.updateProduct(
+                        prodId, 
+                        formState.inputValues.title, 
+                        formState.inputValues.description, 
+                        formState.inputValues.imageUrl
+                    )
                 )
-            )
-        }else{
-            dispatch(
-                productsActions.createProduct(
-                    formState.inputValues.title, 
-                    formState.inputValues.description, 
-                    formState.inputValues.imageUrl, 
-                    +formState.inputValues.price )
-                )
+            }else{
+                await dispatch(
+                    productsActions.createProduct(
+                        formState.inputValues.title, 
+                        formState.inputValues.description, 
+                        formState.inputValues.imageUrl, 
+                        +formState.inputValues.price )
+                    )
+            }
+            props.navigation.goBack()
+        }catch (err){
+            setError(err.message)
         }
-        props.navigation.goBack()
+
+        setIsLoading(false)
+        
     }, [dispatch, prodId, formState])
 
     //useEffect executes a function after every render cycle
@@ -120,6 +140,14 @@ const EditProductScreen = props => {
             input: inputIdentifier
          })
     }, [dispatchFormState])
+
+    if (isLoading){
+        return (
+            <View style={styles.centered}>
+                <ActivityIndicator size="large" color={Colors.primary} />
+            </View>
+        )
+    }
 
     return (
         <KeyboardAvoidingView 
@@ -210,6 +238,11 @@ const styles = StyleSheet.create({
     form: {
         margin: 20,
     },
+    centered: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center'
+    }
     
 })
 

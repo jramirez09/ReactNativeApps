@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react'
+import React, {useState, useEffect, useCallback} from 'react'
 import { View, Text, FlatList, Button, Platform, ActivityIndicator, StyleSheet} from 'react-native'
 //tap into our Redux store and get our products from there
 import { useSelector, useDispatch } from 'react-redux'
@@ -14,26 +14,58 @@ import Colors from '../../constants/Colors'
 
 const ProductsOverviewScreen = props => {
     const [isLoading, setIsLoading] = useState(false)
+    const [error, setError] = useState()
+
+   
     //useSelector automatically receives the Redux state as an input, and returns whatever you want to get
     const products = useSelector(state => state.products.availableProducts)
-
     //connect button with actions
     const dispatch = useDispatch()
 
-    useEffect(()=>{
-        const loadProducts= async() =>  {
-            setIsLoading(true);
+    const loadProducts=  useCallback(async() =>  {
+        setError(null)
+        setIsLoading(true);
+        try {
             await dispatch(productsActions.fetchProducts());
-            setIsLoading(false); 
+        }catch (err) {
+            setError(err.message)  
         }
+        setIsLoading(false);
+        }, [dispatch, setIsLoading, setError])
+
+    useEffect(() => {
+       const willFocusSub = props.navigation.addListener('willFocus', loadProducts)
+        
+        return () => {
+            //gets rid of the subscribtion once the component is unmounted
+            willFocusSub.remove()
+        }
+
+    }, [loadProducts])
+
+    useEffect(()=>{
+        
         loadProducts()  
-    }, [dispatch])
+    }, [dispatch, loadProducts])
 
     const selectItemHandler = (id, title) => {
         props.navigation.navigate( 'ProductDetail', { 
             productId: id ,
             productTitle: title
         })
+    }
+
+    if (error) {
+        return (
+            <View style={styles.centered}>
+                <Text> An error occurred! </Text>
+                <Button 
+                    title="Try again" 
+                    onPress={loadProducts}
+                    color={Colors.primary}
+                    />
+            </View>
+        )
     }
 
     if (isLoading) {
