@@ -33,6 +33,7 @@ export const fetchProducts = () => {
                             )
                         )
                 }
+                
             dispatch({type: SET_PRODUCTS, products:loadedProducts })
         } catch (err) {
             //send to custom analytics server

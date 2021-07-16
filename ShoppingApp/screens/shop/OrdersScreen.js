@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useEffect} from 'react'
 import {Platform , FlatList, Text} from 'react-native'
 import {useSelector} from 'react-redux'
 import {HeaderButtons, Item} from 'react-navigation-header-buttons'
